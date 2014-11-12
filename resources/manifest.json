@@ -1,0 +1,24 @@
+{
+  "name": "textarea to code editor",
+  "description": "Adds ability to convert textarea to code editor.",
+  "version": "0.1",
+  "permissions": [
+    "contextMenus",
+    "tabs",
+    "*<all_urls>"
+  ],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://eztv.it/*",
+        "*://thepiratebay.se/*",
+        "*://subman.io/*"
+      ],
+      "js": ["content.js"]
+    }
+  ],
+  "manifest_version": 2
+}

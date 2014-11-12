@@ -1,0 +1,17 @@
+/target
+/classes
+/checkouts
+pom.xml
+pom.xml.asc
+*.jar
+*.class
+/.lein-*
+/.nrepl-port
+.lein-deps-sum
+.lein-repl-history
+.lein-plugins/
+resources/public/cljs-target/
+hs_err*
+/resources/*.js
+.idea
+*iml
