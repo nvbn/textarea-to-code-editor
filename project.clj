@@ -8,7 +8,10 @@
                            [com.cemerick/clojurescript.test "0.3.1"]
                            [clj-di "0.4.0"]]
             :plugins [[lein-cljsbuild "1.0.3"]
-                      [com.cemerick/clojurescript.test "0.3.1"]]
+                      [com.cemerick/clojurescript.test "0.3.1"]
+                      [lein-bower "0.5.1"]]
+            :bower-dependencies [[ace-builds "~1.1.8"]]
+            :bower {:directory "resources/components/"}
             :cljsbuild {:builds [{:source-paths ["src/textarea_to_code_editor/background/"
                                                  "src/textarea_to_code_editor/chrome"]
                                   :compiler {:output-to "resources/background.js"
