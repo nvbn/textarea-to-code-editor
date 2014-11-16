@@ -11,8 +11,8 @@
 (defprotocol* chrome
   "Simple protocol which adds ability to mock chrome api in tests."
   (on-message [_ listener])
-  (send-message [_ request data])
-  (send-message-to-tab [_ tab request data])
+  (send-message [_ request] [_ request data])
+  (send-message-to-tab [_ tab request] [_ tab request data])
   (clear-context-menu [_])
   (create-context-menu [_ params]))
 
@@ -23,10 +23,12 @@
   (send-message [_ request data] (.. js/chrome -runtime
                                      (sendMessage (clj->js {:request request
                                                             :data data}))))
+  (send-message [this request] (send-message this request nil))
   (send-message-to-tab [_ tab request data] (.. js/chrome -tabs
                                                 (sendMessage (.-id tab)
                                                              (clj->js {:request request
                                                                        :data data}))))
+  (send-message-to-tab [this tab request] (send-message-to-tab this tab request nil))
   (clear-context-menu [_] (.. js/chrome -contextMenus (removeAll)))
   (create-context-menu [_ params] (.. js/chrome -contextMenus
                                       (create (clj->js params)))))

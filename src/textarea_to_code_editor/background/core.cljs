@@ -5,7 +5,8 @@
             [clj-di.core :refer [register! get-dep]]
             [textarea-to-code-editor.chrome.core :as c]))
 
-(def popular-modes #{"Python" "SH" "JavaScript" "Clojure" "Ruby" "CoffeeScript"})
+(def popular-modes #{"Python" "SH" "JavaScript" "Clojure"
+                     "Ruby" "CoffeeScript" "HTML" "Markdown"})
 
 (defn get-ordered-modes
   "Returns list with ordered modes."
@@ -47,9 +48,9 @@
   (c/create-context-menu* {:title "Convert to textarea"
                            :contexts [:all]
                            :onclick #(c/send-message-to-tab* (.-tab sender)
-                                                             :to-textarea
-                                                             nil)}))
+                                                             :to-textarea)}))
 (defn handle-messages!
+  "Handles messages received from content."
   [msg-chan]
   (go-loop []
     (let [[request data sender] (<! msg-chan)]

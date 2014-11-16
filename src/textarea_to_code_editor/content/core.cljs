@@ -62,13 +62,13 @@
     (let [[[request data _] _] (alts! [hover-chan msg-chan])]
       (recur (condp = request
                :enter (do (update-editor-modes)
-                          (c/send-message* :enter nil)
+                          (c/send-message* :enter)
                           data)
-               :leave (do (c/send-message* :leave nil) nil)
-               :editor-enter (do (c/send-message* :editor-enter nil) data)
+               :leave (do (c/send-message* :leave) nil)
+               :editor-enter (do (c/send-message* :editor-enter) data)
                :update-modes (update-editor-modes)
                :to-code-editor (do (to-code-editor active hover-chan data)
-                                   (c/send-message* :leave nil)
+                                   (c/send-message* :leave)
                                    nil)
                :to-textarea (do (to-textarea active) nil))))))
 
