@@ -13,5 +13,6 @@ pom.xml.asc
 resources/public/cljs-target/
 hs_err*
 /resources/*.js
+/resources/components
 .idea
 *iml
