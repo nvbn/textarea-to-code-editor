@@ -5,7 +5,9 @@
                       :url "http://www.eclipse.org/legal/epl-v10.html"}
             :dependencies [[org.clojure/clojure "1.6.0"]
                            [org.clojure/clojurescript "0.0-2371"]
+                           [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                            [com.cemerick/clojurescript.test "0.3.1"]
+                           [domina "1.0.2"]
                            [clj-di "0.4.0"]]
             :plugins [[lein-cljsbuild "1.0.3"]
                       [com.cemerick/clojurescript.test "0.3.1"]
@@ -16,12 +18,12 @@
                                                  "src/textarea_to_code_editor/chrome"]
                                   :compiler {:output-to "resources/background.js"
                                              :optimizations :whitespace
-                                             :pretty-print false}}
+                                             :pretty-print true}}
                                  {:source-paths ["src/textarea_to_code_editor/content/"
                                                  "src/textarea_to_code_editor/chrome"]
                                   :compiler {:output-to "resources/content.js"
                                              :optimizations :whitespace
-                                             :pretty-print false}}
+                                             :pretty-print true}}
                                  {:source-paths ["src/" "test/"]
                                   :compiler {:output-to "target/cljs-test.js"
                                              :optimizations :whitespace
