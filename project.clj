@@ -17,12 +17,16 @@
             :jvm-opts ["-Xss16m"]
             :cljsbuild {:builds [{:source-paths ["src/textarea_to_code_editor/background/"
                                                  "src/textarea_to_code_editor/chrome"]
-                                  :compiler {:output-to "resources/background.js"
+                                  :compiler {:output-to "resources/background/main.js"
+                                             :output-dir "resources/background/"
+                                             :source-map "resources/background/main.js.map"
                                              :optimizations :whitespace
                                              :pretty-print true}}
                                  {:source-paths ["src/textarea_to_code_editor/content/"
                                                  "src/textarea_to_code_editor/chrome"]
-                                  :compiler {:output-to "resources/content.js"
+                                  :compiler {:output-to "resources/content/main.js"
+                                             :output-dir "resources/content/"
+                                             :source-map "resources/content/main.js.map"
                                              :optimizations :whitespace
                                              :pretty-print true}}
                                  {:source-paths ["src/" "test/"]
