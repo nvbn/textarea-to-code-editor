@@ -3,7 +3,8 @@
   (:require [cljs.core.async :refer [>! chan alts!]]
             [domina.css :refer [sel]]
             [domina.events :refer [listen! current-target]]
-            [domina :refer [insert-before! destroy! set-styles! add-class!]]
+            [domina :refer [insert-before! destroy! set-styles! add-class!
+                            text set-text! attr by-class by-id]]
             [clj-di.core :refer [register!]]
             [textarea-to-code-editor.chrome.core :as c]))
 
@@ -16,36 +17,51 @@
       (listen! :mouseleave #(go (>! ch [:leave]))))
     ch))
 
+(defn init-editor!
+  "Initializes text editor."
+  [textarea id mode]
+  (let [editor (.edit js/ace id)]
+    (doto editor
+      (.setTheme "ace/theme/monokai")
+      (.setValue (text textarea))
+      (.. getSession (setMode mode))
+      (.. getSession (on "change" #(set-text! textarea (.getValue editor)))))))
+
+(defn subscribe-to-editor-events!
+  "Subscribes to editor events and puts it to hover channel."
+  [hover-chan editor-el]
+  (doto editor-el
+    (listen! :mouseenter #(go (>! hover-chan [:editor-enter (current-target %)])))
+    (listen! :mouseleave #(go (>! hover-chan [:leave])))))
+
+(defn div-from-textarea!
+  "Creates div from textarea."
+  [textarea]
+  (let [id (str (gensym))]
+    (doto textarea
+      (insert-before! (str "<div id='" id "' style='
+                                  width: " (attr textarea :scrollWidth) "px;
+                                  height: " (attr textarea :scrollHeight) "px;
+                                  font-size: 16px;'
+                                 class='textarea-to-code-editor-block'></div>"))
+      (add-class! id)
+      (set-styles! {:display "none"}))
+    (by-id id)))
+
 (defn to-code-editor
   "Converts textarea to code editor."
   [el hover-chan mode]
   (when el
-    (let [id (str (gensym))
-          width (.-scrollWidth el)
-          height (.-scrollHeight el)
-          content (.-value el)]
-      (insert-before! el (str "<div id='" id "' style='
-                                  width: " width "px;
-                                  height: " height "px;
-                                  font-size: 16px;'></div>"))
-      (add-class! el id)
-      (set-styles! el {:display "none"})
-      (let [editor (.edit js/ace id)]
-        (doto editor
-          (.setTheme "ace/theme/monokai")
-          (.setValue content)
-          (.. getSession (setMode mode))
-          (.. getSession (on "change" #(set! (.-value el)
-                                             (.getValue editor))))))
-      (doto (sel (str "#" id))
-        (listen! :mouseenter #(go (>! hover-chan [:editor-enter (current-target %)])))
-        (listen! :mouseleave #(go (>! hover-chan [:leave])))))))
+    (let [editor-el (div-from-textarea! el)
+          id (attr editor-el :id)]
+      (subscribe-to-editor-events! hover-chan editor-el)
+      (init-editor! el id mode))))
 
 (defn to-textarea
   "Converts code editor back to textarea."
   [el]
   (when el
-    (set-styles! (sel (str "." (.-id el))) {:display "block"})
+    (set-styles! (by-class (attr el :id)) {:display "block"})
     (destroy! el)))
 
 (defn update-editor-modes
@@ -65,7 +81,6 @@
                           data)
                :leave (do (c/send-message* :leave) nil)
                :editor-enter (do (c/send-message* :editor-enter) data)
-               :update-modes (update-editor-modes)
                :to-code-editor (do (to-code-editor active hover-chan data)
                                    (c/send-message* :leave)
                                    nil)
