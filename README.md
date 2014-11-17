@@ -13,6 +13,7 @@ For building local version of extensions you should run:
 ```bash
 lein bower install
 lein cljsbuild once
+lein run
 ```
 
 And install unpacked extension from `resources`.

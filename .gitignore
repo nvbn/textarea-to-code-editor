@@ -13,6 +13,9 @@ pom.xml.asc
 resources/public/cljs-target/
 hs_err*
 /resources/*.js
+/resources/manifest.json
 /resources/components
+/resources/background
+/resources/content
 .idea
 *iml

@@ -1,4 +1,4 @@
-(defproject textarea-to-code-editor "0.1.0-SNAPSHOT"
+(defproject textarea-to-code-editor "0.2"
             :description "Chrome extension for converting textarea to code editor"
             :url "https://github.com/nvbn/textarea-to-code-editor"
             :license {:name "Eclipse Public License"
@@ -8,13 +8,19 @@
                            [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                            [com.cemerick/clojurescript.test "0.3.1"]
                            [domina "1.0.2"]
-                           [clj-di "0.4.0"]]
+                           [clj-di "0.4.0"]
+                           [selmer "0.7.2"]]
             :plugins [[lein-cljsbuild "1.0.3"]
                       [com.cemerick/clojurescript.test "0.3.1"]
                       [lein-bower "0.5.1"]]
             :bower-dependencies [[ace-builds "~1.1.8"]]
             :bower {:directory "resources/components/"}
             :jvm-opts ["-Xss16m"]
+            :content-scripts ["content/main.js"
+                              "components/ace-builds/src/"
+                              "components/ace-builds/src/snippets/"]
+            :background-scripts ["background/main.js"]
+            :main textarea-to-code-editor.core
             :cljsbuild {:builds [{:source-paths ["src/textarea_to_code_editor/background/"
                                                  "src/textarea_to_code_editor/chrome"]
                                   :compiler {:output-to "resources/background/main.js"
