@@ -1,6 +1,6 @@
 (defproject textarea-to-code-editor "0.1.0-SNAPSHOT"
-            :description "FIXME: write description"
-            :url "http://example.com/FIXME"
+            :description "Chrome extension for convertion textarea to code editor"
+            :url "https://github.com/nvbn/textarea-to-code-editor"
             :license {:name "Eclipse Public License"
                       :url "http://www.eclipse.org/legal/epl-v10.html"}
             :dependencies [[org.clojure/clojure "1.6.0"]

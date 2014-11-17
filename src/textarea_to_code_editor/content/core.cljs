@@ -27,8 +27,7 @@
       (insert-before! el (str "<div id='" id "' style='
                                   width: " width "px;
                                   height: " height "px;
-                                  font-size: 16px;'
-                                class='textarea-to-code-editor-el'></div>"))
+                                  font-size: 16px;'></div>"))
       (add-class! el id)
       (set-styles! el {:display "none"})
       (let [editor (.edit js/ace id)]
