@@ -1,4 +1,4 @@
-(defproject textarea-to-code-editor "0.2"
+(defproject textarea-to-code-editor "0.3"
             :description "Chrome extension for converting textarea to code editor"
             :url "https://github.com/nvbn/textarea-to-code-editor"
             :license {:name "Eclipse Public License"
@@ -9,7 +9,8 @@
                            [com.cemerick/clojurescript.test "0.3.1"]
                            [domina "1.0.2"]
                            [clj-di "0.4.0"]
-                           [selmer "0.7.2"]]
+                           [selmer "0.7.2"]
+                           [alandipert/storage-atom "1.2.3"]]
             :plugins [[lein-cljsbuild "1.0.3"]
                       [com.cemerick/clojurescript.test "0.3.1"]
                       [lein-bower "0.5.1"]]

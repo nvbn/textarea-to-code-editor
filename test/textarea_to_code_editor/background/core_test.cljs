@@ -20,6 +20,40 @@
             :latex {:caption "LaTeX"
                     :mode "ace/modes/latex"}})
 
+(deftest test-get-mode-by-caption
+  (register! :modes (atom modes))
+  (testing "When mode exists"
+    (is (= (b/get-mode-by-caption "Python") ["Python" "ace/modes/python"])))
+  (testing "When not"
+    (is (nil? (b/get-mode-by-caption "Not exists lang")))))
+
+(deftest test-get-used-modes
+  (register! :modes (atom modes)
+             :local-storage (atom {:used-modes ["Python"
+                                                "JavaScript"
+                                                "Not exists lang"]}))
+  (is (= (b/get-used-modes) [["Python" "ace/modes/python"]
+                             ["JavaScript" "ace/modes/js"]])))
+
+(deftest test-update-used-modes!
+  (testing "Without modes"
+    (register! :local-storage (atom {:used-modes []})
+               :modes (atom modes))
+    (b/update-used-modes! "Python")
+    (is (= (b/get-used-modes) [["Python" "ace/modes/python"]])))
+  (testing "With more than need modes"
+    (with-reset [b/used-modes-limit 2]
+      (register! :local-storage (atom {:used-modes ["Python" "Clojure"]}))
+      (b/update-used-modes! "JavaScript")
+      (is (= (b/get-used-modes) [["JavaScript" "ace/modes/js"]
+                                 ["Python" "ace/modes/python"]]))))
+  (testing "When mode already in list"
+    (register! :local-storage (atom {:used-modes ["Python" "Clojure" "JavaScript"]}))
+    (b/update-used-modes! "Clojure")
+    (is (= (b/get-used-modes) [["Clojure" "ace/modes/clojure"]
+                               ["Python" "ace/modes/python"]
+                               ["JavaScript" "ace/modes/js"]]))))
+
 (deftest test-get-ordered-modes
   (register! :modes (atom modes))
   (is (= (b/get-ordered-modes)
@@ -35,9 +69,13 @@
                          (create-context-menu [_ data] (swap! menus conj data))
                          (send-message-to-tab [_ tab request data]
                            (swap! messages conj [tab request data])))
-               :modes (atom modes))
+               :modes (atom modes)
+               :local-storage (atom {:used-modes ["Clojure"
+                                                  "JavaScript"
+                                                  "Python"]}))
     (b/show-textarea-context-menu #js {:tab "tab"})
     (testing "Menu items ordering"
+      (println (map :title @menus))
       (is (= (map #(dissoc % :onclick) @menus) [{:title "Convert to code editor"
                                                  :contexts [:all]
                                                  :id :textarea-to-editor}
