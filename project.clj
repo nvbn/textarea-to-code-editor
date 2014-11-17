@@ -1,5 +1,5 @@
 (defproject textarea-to-code-editor "0.1.0-SNAPSHOT"
-            :description "Chrome extension for convertion textarea to code editor"
+            :description "Chrome extension for converting textarea to code editor"
             :url "https://github.com/nvbn/textarea-to-code-editor"
             :license {:name "Eclipse Public License"
                       :url "http://www.eclipse.org/legal/epl-v10.html"}

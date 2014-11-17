@@ -1,14 +1,22 @@
 # textarea-to-code-editor
 
-A Clojure library designed to ... well, that part is up to you.
+[![Build Status](https://travis-ci.org/nvbn/textarea-to-code-editor.svg)](https://travis-ci.org/nvbn/textarea-to-code-editor)
 
-## Usage
+Chrome extension for converting textarea to code editor
 
-FIXME
+## Building
 
-## License
+For building local version of extensions you should run:
 
-Copyright © 2014 FIXME
+```bash
+lein bower install
+lein cljsbuild once
+```
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+And install unpacked extension from `resources`.
+
+For running tests:
+
+```bash
+lein cljsbuild test
+```
