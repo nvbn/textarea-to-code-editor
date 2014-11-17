@@ -8,7 +8,7 @@
             [clj-di.core :refer [register!]]
             [textarea-to-code-editor.chrome.core :as c]))
 
-(def leave-timeout 500)
+(def leave-timeout 50)
 
 (defn get-hover-chan
   "Returns chan in which we put hovering related events."
