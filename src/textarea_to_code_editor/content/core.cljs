@@ -1,6 +1,6 @@
 (ns textarea-to-code-editor.content.core
   (:require-macros [cljs.core.async.macros :refer [go go-loop]])
-  (:require [cljs.core.async :refer [>! chan alts!]]
+  (:require [cljs.core.async :refer [>! <! chan alts! timeout]]
             [domina.css :refer [sel]]
             [domina.events :refer [listen! current-target]]
             [domina :refer [insert-before! destroy! set-styles! add-class!
@@ -8,13 +8,16 @@
             [clj-di.core :refer [register!]]
             [textarea-to-code-editor.chrome.core :as c]))
 
+(def leave-timeout 500)
+
 (defn get-hover-chan
   "Returns chan in which we put hovering related events."
   []
   (let [ch (chan)]
     (doto (sel "textarea")
       (listen! :mouseenter #(go (>! ch [:enter (current-target %)])))
-      (listen! :mouseleave #(go (>! ch [:leave]))))
+      (listen! :mouseleave #(go (<! (timeout leave-timeout))
+                                (>! ch [:leave]))))
     ch))
 
 (defn init-editor!
@@ -32,7 +35,8 @@
   [hover-chan editor-el]
   (doto editor-el
     (listen! :mouseenter #(go (>! hover-chan [:editor-enter (current-target %)])))
-    (listen! :mouseleave #(go (>! hover-chan [:leave])))))
+    (listen! :mouseleave #(go (<! (timeout leave-timeout))
+                              (>! hover-chan [:leave])))))
 
 (defn div-from-textarea!
   "Creates div from textarea."

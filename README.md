@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/nvbn/textarea-to-code-editor.svg)](https://travis-ci.org/nvbn/textarea-to-code-editor)
 
+[![Available in the chrome web store](https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_206x58.png)](https://chrome.google.com/webstore/detail/kcapdaijpdnhajjgdimlhoaaaiplkobj)
+
 Chrome extension for converting textarea to code editor
 
 ## Building
