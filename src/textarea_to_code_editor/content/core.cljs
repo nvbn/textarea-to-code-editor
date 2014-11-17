@@ -4,7 +4,7 @@
             [domina.css :refer [sel]]
             [domina.events :refer [listen! current-target]]
             [domina :refer [insert-before! destroy! set-styles! add-class!
-                            text set-text! attr by-class by-id]]
+                            attr by-class by-id value set-value!]]
             [clj-di.core :refer [register!]]
             [textarea-to-code-editor.chrome.core :as c]))
 
@@ -23,9 +23,9 @@
   (let [editor (.edit js/ace id)]
     (doto editor
       (.setTheme "ace/theme/monokai")
-      (.setValue (text textarea))
+      (.setValue (value textarea))
       (.. getSession (setMode mode))
-      (.. getSession (on "change" #(set-text! textarea (.getValue editor)))))))
+      (.. getSession (on "change" #(set-value! textarea (.getValue editor)))))))
 
 (defn subscribe-to-editor-events!
   "Subscribes to editor events and puts it to hover channel."
@@ -40,8 +40,8 @@
   (let [id (str (gensym))]
     (doto textarea
       (insert-before! (str "<div id='" id "' style='
-                                  width: " (attr textarea :scrollWidth) "px;
-                                  height: " (attr textarea :scrollHeight) "px;
+                                  width: " (.-scrollWidth textarea) "px;
+                                  height: " (.-scrollHeight textarea) "px;
                                   font-size: 16px;'
                                  class='textarea-to-code-editor-block'></div>"))
       (add-class! id)

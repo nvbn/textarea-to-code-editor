@@ -8,8 +8,8 @@
             [clj-di.core :refer [register!]]
             [domina.css :refer [sel]]
             [domina.events :refer [dispatch! root-element is-event-target?]]
-            [domina :refer [append! styles text attr has-class? classes
-                            destroy-children! by-id nodes]]
+            [domina :refer [append! styles attr has-class? classes
+                            destroy-children! by-id nodes value]]
             [textarea-to-code-editor.chrome.core :as c]
             [textarea-to-code-editor.content.core :as ct]))
 
@@ -41,12 +41,12 @@
     (let [textarea (by-id textarea-id)
           editor (ct/init-editor! textarea div-id mode)]
       (testing "Text editor content should be equal to textarea content"
-        (is (= (.getValue editor) (text textarea))))
+        (is (= (.getValue editor) (value textarea))))
       (testing "Text editor mode should be setted"
         (is (= (.. editor getSession getMode -$id) mode)))
       (testing "Textarea content should be changed when editor content changed"
         (.setValue editor "new content")
-        (is (= (text textarea) "new content"))))))
+        (is (= (value textarea) "new content"))))))
 
 (deftest ^:async test-subscribe-to-editor-events!
   (go (let [ch (chan)
@@ -68,11 +68,6 @@
                                           id='" textarea-id "'>test content</textarea>"))
     (let [textarea (by-id textarea-id)
           div (ct/div-from-textarea! textarea)]
-      (testing "Should have same width and height"
-        (is (= (attr textarea :scrollWidth)
-               (attr div :scrollWidth)))
-        (is (= (attr textarea :scrollHeight)
-               (attr div :scrollHeight))))
       (testing "Textarea should have class equal to div id"
         (is (has-class? textarea (attr div :id))))
       (testing "Textarea shoul be hidden"
