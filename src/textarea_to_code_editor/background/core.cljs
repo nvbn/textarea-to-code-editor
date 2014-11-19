@@ -46,6 +46,7 @@
 (defn show-textarea-context-menu
   "Shows context menu when mouse on textarea."
   [sender]
+  (c/clear-context-menu*)
   (let [on-click (fn [[caption mode]] (fn []
                                         (c/send-message-to-tab* (.-tab sender)
                                                                 :to-code-editor
@@ -68,6 +69,7 @@
 (defn show-editor-context-menu
   "Shows context menu when mouse on code editor."
   [sender]
+  (c/clear-context-menu*)
   (c/create-context-menu* {:title "Convert to textarea"
                            :contexts [:all]
                            :onclick #(c/send-message-to-tab* (.-tab sender)
