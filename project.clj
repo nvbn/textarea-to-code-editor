@@ -22,24 +22,24 @@
                               "components/ace-builds/src/snippets/"]
             :background-scripts ["background/main.js"]
             :main textarea-to-code-editor.core
-            :cljsbuild {:builds [{:source-paths ["src/textarea_to_code_editor/background/"
-                                                 "src/textarea_to_code_editor/chrome"]
-                                  :compiler {:output-to "resources/background/main.js"
-                                             :output-dir "resources/background/"
-                                             :source-map "resources/background/main.js.map"
-                                             :optimizations :whitespace
-                                             :pretty-print true}}
-                                 {:source-paths ["src/textarea_to_code_editor/content/"
-                                                 "src/textarea_to_code_editor/chrome"]
-                                  :compiler {:output-to "resources/content/main.js"
-                                             :output-dir "resources/content/"
-                                             :source-map "resources/content/main.js.map"
-                                             :optimizations :whitespace
-                                             :pretty-print true}}
-                                 {:source-paths ["src/" "test/"]
-                                  :compiler {:output-to "target/cljs-test.js"
-                                             :optimizations :whitespace
-                                             :pretty-print false}}]
+            :cljsbuild {:builds {:background {:source-paths ["src/textarea_to_code_editor/background/"
+                                                             "src/textarea_to_code_editor/chrome"]
+                                              :compiler {:output-to "resources/background/main.js"
+                                                         :output-dir "resources/background/"
+                                                         :source-map "resources/background/main.js.map"
+                                                         :optimizations :whitespace
+                                                         :pretty-print true}}
+                                 :content {:source-paths ["src/textarea_to_code_editor/content/"
+                                                          "src/textarea_to_code_editor/chrome"]
+                                           :compiler {:output-to "resources/content/main.js"
+                                                      :output-dir "resources/content/"
+                                                      :source-map "resources/content/main.js.map"
+                                                      :optimizations :whitespace
+                                                      :pretty-print true}}
+                                 :test {:source-paths ["src/" "test/"]
+                                        :compiler {:output-to "target/cljs-test.js"
+                                                   :optimizations :whitespace
+                                                   :pretty-print false}}}
                         :test-commands {"test" ["phantomjs" :runner
                                                 "resources/components/ace-builds/src/ace.js"
                                                 "resources/components/ace-builds/src/mode-clojure.js"
