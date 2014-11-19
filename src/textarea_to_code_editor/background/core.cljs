@@ -43,37 +43,55 @@
        (map (fn [[_ {:keys [caption mode]}]] [caption mode]))
        (sort-by first)))
 
+(defn populate-menus!
+  [& menus]
+  (doseq [menu (flatten menus)]
+    (c/create-context-menu* (assoc menu
+                              :contexts [:all]))))
+
+(defn get-menus-for-modes
+  [modes parent-id current-mode sender]
+  (for [[caption mode] modes]
+    {:title caption
+     :parentId parent-id
+     :type :checkbox
+     :checked (= current-mode mode)
+     :onclick (fn []
+                (c/send-message-to-tab* (.-tab sender)
+                                        (if (nil? current-mode)
+                                          :to-code-editor
+                                          :change-editor-mode)
+                                        mode)
+                (update-used-modes! caption))}))
+
 (defn show-textarea-context-menu
   "Shows context menu when mouse on textarea."
-  [sender]
-  (c/clear-context-menu*)
-  (let [on-click (fn [[caption mode]] (fn []
-                                        (c/send-message-to-tab* (.-tab sender)
-                                                                :to-code-editor
-                                                                mode)
-                                        (update-used-modes! caption)))]
-    (c/create-context-menu! "Convert to code editor"
-                            :id :textarea-to-editor)
-    (doseq [mode (get-used-modes)]
-      (c/create-context-menu! (first mode)
-                              :parentId :textarea-to-editor
-                              :onclick (on-click mode)))
-    (c/create-context-menu! "More"
-                            :parentId :textarea-to-editor
-                            :id :textarea-to-editor-more)
-    (doseq [mode (get-ordered-modes)]
-      (c/create-context-menu! (first mode)
-                              :parentId :textarea-to-editor-more
-                              :onclick (on-click mode)))))
+  ([sender] (show-textarea-context-menu sender nil))
+  ([sender current-mode]
+    (c/clear-context-menu*)
+    (populate-menus! {:title "Textarea to code editor"
+                      :id :textarea-to-code-editor}
+                     {:title "Normal textarea"
+                      :parentId :textarea-to-code-editor
+                      :type :checkbox
+                      :checked (nil? current-mode)
+                      :onclick #(when current-mode
+                                 (c/send-message-to-tab* (.-tab sender)
+                                                         :to-textarea))}
+                     {:parentId :textarea-to-code-editor
+                      :type :separator}
+                     (get-menus-for-modes (get-used-modes)
+                                          :textarea-to-code-editor
+                                          current-mode
+                                          sender)
+                     {:title "More"
+                      :parentId :textarea-to-code-editor
+                      :id :textarea-to-editor-more}
+                     (get-menus-for-modes (get-ordered-modes)
+                                          :textarea-to-editor-more
+                                          current-mode
+                                          sender))))
 
-(defn show-editor-context-menu
-  "Shows context menu when mouse on code editor."
-  [sender]
-  (c/clear-context-menu*)
-  (c/create-context-menu* {:title "Convert to textarea"
-                           :contexts [:all]
-                           :onclick #(c/send-message-to-tab* (.-tab sender)
-                                                             :to-textarea)}))
 (defn handle-messages!
   "Handles messages received from content."
   [msg-chan]
@@ -81,7 +99,7 @@
     (let [[request data sender] (<! msg-chan)]
       (condp = request
         :enter (show-textarea-context-menu sender)
-        :editor-enter (show-editor-context-menu sender)
+        :editor-enter (show-textarea-context-menu sender data)
         :leave (c/clear-context-menu*)
         :update-modes (reset! (get-dep :modes) data))
       (recur))))

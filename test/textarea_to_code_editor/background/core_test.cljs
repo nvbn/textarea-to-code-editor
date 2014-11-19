@@ -77,19 +77,19 @@
       (println (map :title @menus))
       (is (= (map #(dissoc % :onclick) @menus) [{:title "Convert to code editor"
                                                  :contexts [:all]
-                                                 :id :textarea-to-editor}
+                                                 :id :textarea-to-code-editor}
                                                 {:title "Clojure"
                                                  :contexts [:all]
-                                                 :parentId :textarea-to-editor}
+                                                 :parentId :textarea-to-code-editor}
                                                 {:title "JavaScript"
                                                  :contexts [:all]
-                                                 :parentId :textarea-to-editor}
+                                                 :parentId :textarea-to-code-editor}
                                                 {:title "Python"
                                                  :contexts [:all]
-                                                 :parentId :textarea-to-editor}
+                                                 :parentId :textarea-to-code-editor}
                                                 {:title "More"
                                                  :contexts [:all]
-                                                 :parentId :textarea-to-editor
+                                                 :parentId :textarea-to-code-editor
                                                  :id :textarea-to-editor-more}
                                                 {:title "Clojure"
                                                  :contexts [:all]

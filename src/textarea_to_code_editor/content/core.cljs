@@ -61,6 +61,14 @@
       (subscribe-to-editor-events! hover-chan editor-el)
       (init-editor! el id mode))))
 
+(defn get-editor-mode
+  [el]
+  (.. js/ace (edit (attr el :id)) getSession getMode -$id))
+
+(defn change-editor-mode
+  [el mode]
+  (.. js/ace (edit (attr el :id)) getSession (setMode mode)))
+
 (defn to-textarea
   "Converts code editor back to textarea."
   [el]
@@ -84,10 +92,13 @@
                           (c/send-message* :enter)
                           data)
                :leave (do (c/send-message* :leave) nil)
-               :editor-enter (do (c/send-message* :editor-enter) data)
+               :editor-enter (do (c/send-message* :editor-enter (get-editor-mode data))
+                                 data)
                :to-code-editor (do (to-code-editor active hover-chan data)
                                    (c/send-message* :leave)
                                    nil)
+               :change-editor-mode (do (change-editor-mode active data)
+                                       active)
                :to-textarea (do (to-textarea active) nil))))))
 
 (when (c/available?)
