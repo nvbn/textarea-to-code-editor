@@ -42,10 +42,3 @@
                                 (:data msg)
                                 %2]))))
     ch))
-
-(defn create-context-menu!
-  "Shortcut for creating context menu."
-  [title & params]
-  (create-context-menu* (assoc (apply hash-map params)
-                          :contexts [:all]
-                          :title title)))

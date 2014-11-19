@@ -10,117 +10,157 @@
 
 (use-fixtures :each #(with-fresh-dependencies (%)))
 
-(def modes {:python {:caption "Python"
-                     :mode "ace/modes/python"}
-            :js {:caption "JavaScript"
-                 :mode "ace/modes/js"}
-            :clojure {:caption "Clojure"
-                      :mode "ace/modes/clojure"}
-            :latex {:caption "LaTeX"
-                    :mode "ace/modes/latex"}})
-
-(deftest test-get-mode-by-caption
-  (register! :modes (atom modes))
-  (testing "When mode exists"
-    (is (= (b/get-mode-by-caption "Python") ["Python" "ace/modes/python"])))
-  (testing "When not"
-    (is (nil? (b/get-mode-by-caption "Not exists lang")))))
+(def modes [{:caption "Python"
+             :mode "ace/modes/python"}
+            {:caption "JavaScript"
+             :mode "ace/modes/js"}
+            {:caption "Clojure"
+             :mode "ace/modes/clojure"}
+            {:caption "LaTeX"
+             :mode "ace/modes/latex"}])
 
 (deftest test-get-used-modes
   (register! :modes (atom modes)
-             :local-storage (atom {:used-modes ["Python"
-                                                "JavaScript"
-                                                "Not exists lang"]}))
-  (is (= (b/get-used-modes) [["Python" "ace/modes/python"]
-                             ["JavaScript" "ace/modes/js"]])))
+             :local-storage (atom {:used-modes [{:caption "Python"
+                                                 :mode "ace/modes/python"}
+                                                {:caption "JavaScript"
+                                                 :mode "ace/modes/js"}
+                                                {:caption "Not exists lang"
+                                                 :mode "ace/mode/not-eixsts-lang"}]}))
+  (is (= (b/get-used-modes) [{:caption "Python"
+                              :mode "ace/modes/python"}
+                             {:caption "JavaScript"
+                              :mode "ace/modes/js"}])))
 
 (deftest test-update-used-modes!
   (testing "Without modes"
     (register! :local-storage (atom {:used-modes []})
                :modes (atom modes))
-    (b/update-used-modes! "Python")
-    (is (= (b/get-used-modes) [["Python" "ace/modes/python"]])))
+    (b/update-used-modes! {:caption "Python"
+                           :mode "ace/modes/python"})
+    (is (= (b/get-used-modes) [{:caption "Python"
+                                :mode "ace/modes/python"}])))
   (testing "With more than need modes"
     (with-reset [b/used-modes-limit 2]
-      (register! :local-storage (atom {:used-modes ["Python" "Clojure"]}))
-      (b/update-used-modes! "JavaScript")
-      (is (= (b/get-used-modes) [["JavaScript" "ace/modes/js"]
-                                 ["Python" "ace/modes/python"]]))))
+      (register! :local-storage (atom {:used-modes [{:caption "Python"
+                                                     :mode "ace/modes/python"}
+                                                    {:caption "Clojure"
+                                                     :mode "ace/modes/clojure"}]}))
+      (b/update-used-modes! {:caption "JavaScript"
+                             :mode "ace/modes/js"})
+      (is (= (b/get-used-modes) [{:caption "JavaScript"
+                                  :mode "ace/modes/js"}
+                                 {:caption "Python"
+                                  :mode "ace/modes/python"}]))))
   (testing "When mode already in list"
-    (register! :local-storage (atom {:used-modes ["Python" "Clojure" "JavaScript"]}))
-    (b/update-used-modes! "Clojure")
-    (is (= (b/get-used-modes) [["Clojure" "ace/modes/clojure"]
-                               ["Python" "ace/modes/python"]
-                               ["JavaScript" "ace/modes/js"]]))))
+    (register! :local-storage (atom {:used-modes [{:caption "Python"
+                                                   :mode "ace/modes/python"}
+                                                  {:caption "Clojure"
+                                                   :mode "ace/modes/clojure"}
+                                                  {:caption "JavaScript"
+                                                   :mode "ace/modes/js"}]}))
+    (b/update-used-modes! {:caption "Clojure"
+                           :mode "ace/modes/clojure"})
+    (is (= (b/get-used-modes) [{:caption "Clojure"
+                                :mode "ace/modes/clojure"}
+                               {:caption "Python"
+                                :mode "ace/modes/python"}
+                               {:caption "JavaScript"
+                                :mode "ace/modes/js"}]))))
 
-(deftest test-get-ordered-modes
-  (register! :modes (atom modes))
-  (is (= (b/get-ordered-modes)
-         [["Clojure" "ace/modes/clojure"]
-          ["JavaScript" "ace/modes/js"]
-          ["LaTeX" "ace/modes/latex"]
-          ["Python" "ace/modes/python"]])))
+(deftest test-get-unused-modes
+  (register! :modes (atom modes)
+             :local-storage (atom {:used-modes [{:caption "Clojure"
+                                                 :mode "ace/modes/clojure"}]}))
+  (is (= (b/get-unused-modes)
+         [{:caption "JavaScript"
+           :mode "ace/modes/js"}
+          {:caption "LaTeX"
+           :mode "ace/modes/latex"}
+          {:caption "Python"
+           :mode "ace/modes/python"}])))
 
-(deftest test-show-textarea-context-menu
+(deftest test-create-context-menus!
+  (let [menus (atom [])]
+    (register! :chrome (reify c/chrome
+                         (create-context-menu [_ params] (swap! menus conj params))))
+    (b/create-context-menus! {:title "first"}
+                             [{:title "second"}
+                              {:title "third"}]
+                             {:title "fourth"})
+    (is (= @menus [{:title "first"
+                    :contexts [:all]}
+                   {:title "second"
+                    :contexts [:all]}
+                   {:title "third"
+                    :contexts [:all]}
+                   {:title "fourth"
+                    :contexts [:all]}]))))
+
+(deftest test-get-menus-for-modes
+  (is (= (map #(dissoc % :onclick) (b/get-menus-for-modes [{:caption "JavaScript"
+                                                            :mode "ace/modes/js"}
+                                                           {:caption "LaTeX"
+                                                            :mode "ace/modes/latex"}
+                                                           {:caption "Python"
+                                                            :mode "ace/modes/python"}]
+                                                          {:caption "Python"
+                                                           :mode "ace/modes/python"}
+                                                          :parent-id
+                                                          nil))
+         [{:title "JavaScript"
+           :parentId :parent-id
+           :type :checkbox
+           :checked false}
+          {:title "LaTeX"
+           :parentId :parent-id
+           :type :checkbox
+           :checked false}
+          {:title "Python"
+           :parentId :parent-id
+           :type :checkbox
+           :checked true}])))
+
+(deftest test-populate-context-menu!
   (let [menus (atom [])
-        messages (atom [])]
+        messages (atom [])
+        cleared (atom false)]
     (register! :chrome (reify c/chrome
                          (create-context-menu [_ data] (swap! menus conj data))
+                         (clear-context-menu [_] (reset! cleared true))
                          (send-message-to-tab [_ tab request data]
-                           (swap! messages conj [tab request data])))
+                           (swap! messages conj [tab request data]))
+                         (send-message-to-tab [_ tab request]
+                           (swap! messages conj [tab request nil])))
                :modes (atom modes)
-               :local-storage (atom {:used-modes ["Clojure"
-                                                  "JavaScript"
-                                                  "Python"]}))
-    (b/show-textarea-context-menu #js {:tab "tab"})
+               :local-storage (atom {:used-modes [{:caption "Clojure"
+                                                   :mode "ace/modes/clojure"}]}))
+    (b/populate-context-menu! #js {:tab "tab"})
     (testing "Menu items ordering"
-      (println (map :title @menus))
-      (is (= (map #(dissoc % :onclick) @menus) [{:title "Convert to code editor"
-                                                 :contexts [:all]
-                                                 :id :textarea-to-code-editor}
-                                                {:title "Clojure"
-                                                 :contexts [:all]
-                                                 :parentId :textarea-to-code-editor}
-                                                {:title "JavaScript"
-                                                 :contexts [:all]
-                                                 :parentId :textarea-to-code-editor}
-                                                {:title "Python"
-                                                 :contexts [:all]
-                                                 :parentId :textarea-to-code-editor}
-                                                {:title "More"
-                                                 :contexts [:all]
-                                                 :parentId :textarea-to-code-editor
-                                                 :id :textarea-to-editor-more}
-                                                {:title "Clojure"
-                                                 :contexts [:all]
-                                                 :parentId :textarea-to-editor-more}
-                                                {:title "JavaScript"
-                                                 :contexts [:all]
-                                                 :parentId :textarea-to-editor-more}
-                                                {:title "LaTeX"
-                                                 :contexts [:all]
-                                                 :parentId :textarea-to-editor-more}
-                                                {:title "Python"
-                                                 :contexts [:all]
-                                                 :parentId :textarea-to-editor-more}])))
+      (is (= (map #(vector (:title %) (:parentId %)) @menus)
+             [["Textarea to code editor" nil]
+              ["Normal textarea" :textarea-to-code-editor]
+              [nil :textarea-to-code-editor]
+              ["Clojure" :textarea-to-code-editor]
+              ["More" :textarea-to-code-editor]
+              ["JavaScript" :textarea-to-editor-more]
+              ["LaTeX" :textarea-to-editor-more]
+              ["Python" :textarea-to-editor-more]])))
+    (testing "Menu should be cleared before"
+      (is @cleared))
+    (testing "Checked when mode is nil"
+      (is (:checked (second @menus))))
+    (testing "Checked with mode"
+      (reset! menus [])
+      (b/populate-context-menu! #js {:tab "tab"} {:caption "Clojure"
+                                                  :mode "ace/modes/clojure"})
+      (is (:checked (first (drop 3 @menus)))))
     (testing "Menu items on-click event"
       ((:onclick (second @menus)))
-      (is (= @messages [["tab" :to-code-editor "ace/modes/clojure"]])))))
-
-(deftest test-show-editor-context-menu
-  (let [menus (atom [])
-        messages (atom [])]
-    (register! :chrome (reify c/chrome
-                         (create-context-menu [_ data] (swap! menus conj data))
-                         (send-message-to-tab [_ tab request]
-                           (swap! messages conj [tab request]))))
-    (b/show-editor-context-menu #js {:tab "tab"})
-    (testing "Menu items ordering"
-      (is (= (map #(dissoc % :onclick) @menus) [{:title "Convert to textarea"
-                                                 :contexts [:all]}])))
-    (testing "Menu items on-click event"
-      ((:onclick (first @menus)))
-      (is (= @messages [["tab" :to-textarea]])))))
+      ((:onclick (first (drop 3 @menus))))
+      (is (= @messages [["tab" :change-mode nil]
+                        ["tab" :change-mode {:caption "Clojure"
+                                             :mode "ace/modes/clojure"}]])))))
 
 (deftest ^:async test-handle-messages!
   (let [clear-context-menu-called (atom false)]
@@ -129,20 +169,18 @@
                :modes (atom {}))
     (go (let [msg-chan (chan)]
           (b/handle-messages! msg-chan)
-          (testing ":enter message"
+          (testing ":populate-context-menu message"
             (let [called-with (atom nil)]
-              (with-reset [b/show-textarea-context-menu #(reset! called-with %)]
-                (>! msg-chan [:enter nil :sender])
+              (with-reset [b/populate-context-menu! #(reset! called-with [%1 %2])]
+                (>! msg-chan [:populate-context-menu
+                              {:caption "Clojure"
+                               :mode "ace/modes/clojure"}
+                              :sender])
                 (<! (timeout 100))
-                (is (= @called-with :sender)))))
-          (testing ":editor-enter message"
-            (let [called-with (atom nil)]
-              (with-reset [b/show-editor-context-menu #(reset! called-with %)]
-                (>! msg-chan [:editor-enter nil :sender])
-                (<! (timeout 100))
-                (is (= @called-with :sender)))))
-          (testing ":leave message"
-            (>! msg-chan [:leave nil nil])
+                (is (= @called-with [:sender {:caption "Clojure"
+                                              :mode "ace/modes/clojure"}])))))
+          (testing ":clear-context-menu message"
+            (>! msg-chan [:clear-context-menu nil nil])
             (<! (timeout 100))
             (is @clear-context-menu-called))
           (testing ":update-modes message"
