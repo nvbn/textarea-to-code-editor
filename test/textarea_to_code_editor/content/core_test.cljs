@@ -1,8 +1,7 @@
 (ns textarea-to-code-editor.content.core-test
   (:require-macros [cemerick.cljs.test :refer [deftest is use-fixtures testing done]]
                    [cljs.core.async.macros :refer [go]]
-                   [clj-di.test :refer [with-fresh-dependencies]]
-                   [clj-di.core :refer [with-reset]])
+                   [clj-di.test :refer [with-fresh-dependencies with-reset]])
   (:require [cemerick.cljs.test]
             [cljs.core.async :refer [<! >! chan timeout]]
             [clj-di.core :refer [register!]]
