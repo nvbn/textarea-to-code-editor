@@ -1,106 +1,47 @@
 (ns textarea-to-code-editor.content.core
-  (:require-macros [cljs.core.async.macros :refer [go go-loop]])
-  (:require [cljs.core.async :refer [>! <! chan alts! timeout]]
+  (:require-macros [cljs.core.async.macros :refer [go-loop go]]
+                   [cljs.core.match.macros :refer [match]])
+  (:require [cljs.core.match]
+            [cljs.core.async :refer [<! >! chan]]
             [domina.css :refer [sel]]
-            [domina.events :refer [listen! current-target]]
-            [domina :refer [insert-before! destroy! set-styles! add-class!
-                            attr by-class by-id value set-value!]]
-            [clj-di.core :refer [register!]]
-            [textarea-to-code-editor.chrome.core :as c]))
+            [textarea-to-code-editor.content.chrome :as c]
+            [textarea-to-code-editor.content.editor :as e]))
 
-(def leave-timeout 50)
-
-(defn get-hover-chan
-  "Returns chan in which we put hovering related events."
-  []
-  (let [ch (chan)]
-    (doto (sel "textarea")
-      (listen! :mouseenter #(go (>! ch [:enter (current-target %)])))
-      (listen! :mouseleave #(go (<! (timeout leave-timeout))
-                                (>! ch [:leave]))))
-    ch))
-
-(defn init-editor!
-  "Initializes text editor."
-  [textarea id mode]
-  (let [editor (.edit js/ace id)]
-    (doto editor
-      (.setTheme "ace/theme/monokai")
-      (.setValue (value textarea))
-      (.. getSession (setMode mode))
-      (.. getSession (on "change" #(set-value! textarea (.getValue editor)))))))
-
-(defn subscribe-to-editor-events!
-  "Subscribes to editor events and puts it to hover channel."
-  [hover-chan editor-el]
-  (doto editor-el
-    (listen! :mouseenter #(go (>! hover-chan [:editor-enter (current-target %)])))
-    (listen! :mouseleave #(go (<! (timeout leave-timeout))
-                              (>! hover-chan [:leave])))))
-
-(defn div-from-textarea!
-  "Creates div from textarea."
-  [textarea]
-  (let [id (str (gensym))]
-    (doto textarea
-      (insert-before! (str "<div id='" id "' style='
-                                  width: " (.-scrollWidth textarea) "px;
-                                  height: " (.-scrollHeight textarea) "px;
-                                  font-size: 16px;'
-                                 class='textarea-to-code-editor-block'></div>"))
-      (add-class! id)
-      (set-styles! {:display "none"}))
-    (by-id id)))
-
-(defn to-code-editor
-  "Converts textarea to code editor."
-  [el hover-chan mode]
+(defn change-mode!
+  "Changes editor mode."
+  [el mode hover-chan]
   (when el
-    (let [editor-el (div-from-textarea! el)
-          id (attr editor-el :id)]
-      (subscribe-to-editor-events! hover-chan editor-el)
-      (init-editor! el id mode))))
+    (match [(e/is-editor? el) mode]
+      [true :textarea] (e/to-textarea! el)
+      [false _] (e/to-code-editor! el hover-chan mode)
+      [true _] (e/change-editor-mode! el mode)
+      :else el)))
 
-(defn get-editor-mode
-  [el]
-  (.. js/ace (edit (attr el :id)) getSession getMode -$id))
+(defn populate-context-menu!
+  "Populates context menu with available modes."
+  [el runtime-chan]
+  (go (>! runtime-chan [:populate-context-menu
+                        {:current-mode (e/get-editor-mode el)
+                         :modes (e/get-modes)}]))
+  el)
 
-(defn change-editor-mode
-  [el mode]
-  (.. js/ace (edit (attr el :id)) getSession (setMode mode)))
-
-(defn to-textarea
-  "Converts code editor back to textarea."
-  [el]
-  (when el
-    (set-styles! (by-class (attr el :id)) {:display "block"})
-    (destroy! el)))
-
-(defn update-editor-modes
-  "Sends editor modes to backend."
-  []
-  (c/send-message* :update-modes (.. js/ace (require "ace/ext/modelist")
-                                     -modesByName)))
+(defn clear-context-menu!
+  "Clears context menu."
+  [runtime-chan]
+  (go (>! runtime-chan [:clear-context-menu]))
+  nil)
 
 (defn handle-messages!
   "Handle messages for background and events."
-  [hover-chan msg-chan]
+  [msg-chan runtime-chan]
   (go-loop [active nil]
-    (let [[[request data _] _] (alts! [hover-chan msg-chan])]
-      (recur (condp = request
-               :enter (do (update-editor-modes)
-                          (c/send-message* :enter)
-                          data)
-               :leave (do (c/send-message* :leave) nil)
-               :editor-enter (do (c/send-message* :editor-enter (get-editor-mode data))
-                                 data)
-               :to-code-editor (do (to-code-editor active hover-chan data)
-                                   (c/send-message* :leave)
-                                   nil)
-               :change-editor-mode (do (change-editor-mode active data)
-                                       active)
-               :to-textarea (do (to-textarea active) nil))))))
+    (recur (match (first (<! msg-chan))
+             [:enter-editor el] (populate-context-menu! el runtime-chan)
+             [:leave-editor] (clear-context-menu! runtime-chan)
+             [:change-mode mode] (change-mode! active mode msg-chan)))))
 
 (when (c/available?)
-  (register! :chrome (c/real-chrome.))
-  (handle-messages! (get-hover-chan) (c/get-messages-chan)))
+  (let [msg-chan (chan)]
+    (e/subscribe-to-hover! (sel "textarea") msg-chan)
+    (c/subscribe-to-runtime! msg-chan)
+    (handle-messages! msg-chan (c/get-runtime-chan))))

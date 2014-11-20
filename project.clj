@@ -6,6 +6,8 @@
             :dependencies [[org.clojure/clojure "1.6.0"]
                            [org.clojure/clojurescript "0.0-2371"]
                            [org.clojure/core.async "0.1.346.0-17112a-alpha"]
+                           [org.clojure/core.match "0.2.1"]
+                           [com.cognitect/transit-cljs "0.8.192"]
                            [com.cemerick/clojurescript.test "0.3.1"]
                            [domina "1.0.3"]
                            [clj-di "0.5.0"]
@@ -22,15 +24,13 @@
                               "components/ace-builds/src/snippets/"]
             :background-scripts ["background/main.js"]
             :main textarea-to-code-editor.core
-            :cljsbuild {:builds {:background {:source-paths ["src/textarea_to_code_editor/background/"
-                                                             "src/textarea_to_code_editor/chrome"]
+            :cljsbuild {:builds {:background {:source-paths ["src/textarea_to_code_editor/background/"]
                                               :compiler {:output-to "resources/background/main.js"
                                                          :output-dir "resources/background/"
                                                          :source-map "resources/background/main.js.map"
                                                          :optimizations :whitespace
                                                          :pretty-print true}}
-                                 :content {:source-paths ["src/textarea_to_code_editor/content/"
-                                                          "src/textarea_to_code_editor/chrome"]
+                                 :content {:source-paths ["src/textarea_to_code_editor/content/"]
                                            :compiler {:output-to "resources/content/main.js"
                                                       :output-dir "resources/content/"
                                                       :source-map "resources/content/main.js.map"
