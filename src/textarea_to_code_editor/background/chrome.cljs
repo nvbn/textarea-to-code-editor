@@ -20,8 +20,8 @@
   "Puts all runtime message to msg-chan."
   [msg-chan]
   (.. js/chrome -runtime -onMessage
-      (addListener #(go (>! msg-chan [(t/read (t/reader :json) %1)
-                                      (get-sender-chan %2)])))))
+      (addListener #(go (>! msg-chan (conj (t/read (t/reader :json) %1)
+                                           (get-sender-chan %2)))))))
 
 (defn clear-context-menu!
   "Removes all create context menus."
