@@ -15,9 +15,11 @@
     (recur (match (<! msg-chan)
              [:enter-editor el _] (h/populate-context-menu! el runtime-chan)
              [:leave-editor _ _] (h/clear-context-menu! runtime-chan)
-             [:change-mode mode _] (h/change-mode! active mode msg-chan)))))
+             [:change-mode mode _] (h/change-mode! active mode msg-chan)
+             [& msg] (println "Unmatched message:" msg)))))
 
 (when (c/available?)
+  (enable-console-print!)
   (let [msg-chan (chan)]
     (e/subscribe-to-hover! (sel "textarea") msg-chan)
     (c/subscribe-to-runtime! msg-chan)

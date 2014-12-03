@@ -8,4 +8,4 @@
      ~args
      (try (do ~@body)
           (catch :default e#
-            (js/console.error e#)))))
+            (println e#)))))

@@ -24,10 +24,12 @@
                                                                           sender-chan
                                                                           msg-chan)
       [:clear-context-menu _ _] (h/clear-context-menu!)
-      [:update-used-modes mode _] (h/update-used-modes! storage mode))
+      [:update-used-modes mode _] (h/update-used-modes! storage mode)
+      [& msg] (println "Unmatched message:" msg))
     (recur)))
 
 (when (c/available?)
+  (enable-console-print!)
   (let [msg-chan (chan)]
     (c/subscribe-to-runtime! msg-chan)
     (handle-messages! msg-chan (get-storage))))
