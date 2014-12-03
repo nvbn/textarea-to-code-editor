@@ -40,5 +40,5 @@
   (testing "Should put message in runtime chan"
     (go (let [ch (chan)]
           (is (nil? (h/clear-context-menu! ch)))
-          (is (= (<! ch) [:clear-context-menu])))
+          (is (= (<! ch) [:clear-context-menu nil])))
         (done))))

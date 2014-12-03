@@ -26,5 +26,5 @@
 (defhandler clear-context-menu!
   "Clears context menu."
   [runtime-chan]
-  (go (>! runtime-chan [:clear-context-menu]))
+  (go (>! runtime-chan [:clear-context-menu nil]))
   nil)
