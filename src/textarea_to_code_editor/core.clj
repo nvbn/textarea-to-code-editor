@@ -17,6 +17,7 @@
        (filter #(-> % io/resource io/file .isDirectory not))))
 
 (defn -main
+  "Generates new manifest.json on lein run"
   [& _]
   (let [project-data (read-string (slurp "project.clj"))
         [_ project-name project-version & _] project-data

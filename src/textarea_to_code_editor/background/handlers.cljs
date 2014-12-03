@@ -1,5 +1,6 @@
 (ns textarea-to-code-editor.background.handlers
-  (:require-macros [cljs.core.async.macros :refer [go]])
+  (:require-macros [cljs.core.async.macros :refer [go]]
+                   [textarea-to-code-editor.macros :refer [defhandler]])
   (:require [cljs.core.async :refer [>! chan]]
             [textarea-to-code-editor.background.chrome :as c]
             [textarea-to-code-editor.background.modes :as m]))
@@ -22,7 +23,7 @@
      :onclick #(go (>! sender-chan [:change-mode mode])
                    (>! msg-chan [:update-used-modes mode nil]))}))
 
-(defn populate-context-menu!
+(defhandler populate-context-menu!
   "Shows context menu when mouse on textarea."
   [{:keys [current-mode modes]} used-modes sender-chan msg-chan]
   (c/clear-context-menu!)
@@ -46,7 +47,12 @@
                          current-mode :textarea-to-editor-more
                          sender-chan msg-chan)))
 
-(defn update-used-modes!
+(defhandler clear-context-menu!
+  "Clears context menu safely."
+  []
+  (c/clear-context-menu!))
+
+(defhandler update-used-modes!
   "Updates list of used modes in local storage."
   [storage mode]
   (swap! storage update-in [:used-modes]

@@ -23,7 +23,7 @@
                                                                           (:used-modes @storage)
                                                                           sender-chan
                                                                           msg-chan)
-      [:clear-context-menu _ _] (c/clear-context-menu!)
+      [:clear-context-menu _ _] (h/clear-context-menu!)
       [:update-used-modes mode _ _] (h/update-used-modes! storage mode))
     (recur)))
 
