@@ -10,7 +10,8 @@
   [msg-chan]
   (.. js/chrome -runtime -onMessage
       (addListener #(go (>! msg-chan
-                            [(t/read (t/reader :json) %)])))))
+                            (conj (t/read (t/reader :json) %1)
+                                  %2))))))
 
 (defn get-runtime-chan
   "Returns channel for send message to runtime."

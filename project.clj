@@ -43,6 +43,7 @@
                         :test-commands {"test" ["phantomjs" :runner
                                                 "resources/components/ace-builds/src/ace.js"
                                                 "resources/components/ace-builds/src/mode-clojure.js"
+                                                "resources/components/ace-builds/src/mode-python.js"
                                                 "resources/components/ace-builds/src/theme-monokai.js"
                                                 "resources/components/ace-builds/src/ext-modelist.js"
                                                 "target/cljs-test.js"]}})

@@ -12,9 +12,9 @@
   "Subscribes to hover and puts messages in channel."
   [el ch]
   (doto el
-    (listen! :mouseenter #(go (>! ch [[:enter-editor (current-target %)]])))
+    (listen! :mouseenter #(go (>! ch [:enter-editor (current-target %) nil])))
     (listen! :mouseleave #(go (<! (timeout leave-timeout))
-                              (>! ch [[:leave-editor]])))))
+                              (>! ch [:leave-editor nil nil])))))
 
 (defn init-editor!
   "Initializes text editor."
@@ -42,7 +42,7 @@
 
 (defn to-code-editor!
   "Converts textarea to code editor."
-  [el hover-chan mode]
+  [el mode hover-chan]
   (let [editor-el (div-from-textarea! el)]
     (subscribe-to-hover! editor-el hover-chan)
     (init-editor! el editor-el mode)))
