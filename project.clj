@@ -12,9 +12,10 @@
                            [domina "1.0.3"]
                            [clj-di "0.5.0"]
                            [selmer "0.8.0"]
-                           [alandipert/storage-atom "1.2.4"]]
+                           [alandipert/storage-atom "1.2.4"]
+                           [org.clojure/tools.macro "0.1.2"]]
             :plugins [[lein-cljsbuild "1.0.3"]
-                      [com.cemerick/clojurescript.test "0.3.1"]
+                      [com.cemerick/clojurescript.test "0.3.3"]
                       [lein-bower "0.5.1"]]
             :bower-dependencies [[ace-builds "~1.1.8"]]
             :bower {:directory "resources/components/"}
