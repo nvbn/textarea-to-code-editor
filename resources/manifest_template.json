@@ -14,7 +14,8 @@
   "content_scripts": [
     {
       "matches": ["*://*/*"],
-      "js": {{ content-scripts|json|safe }}
+      "js": {{ content-scripts|json|safe }},
+      "run_at": "document_end"
     }
   ],
   "web_accessible_resources": [

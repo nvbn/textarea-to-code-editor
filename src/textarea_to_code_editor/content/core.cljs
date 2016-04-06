@@ -1,7 +1,6 @@
 (ns textarea-to-code-editor.content.core
-  (:require-macros [cljs.core.async.macros :refer [go-loop]]
-                   [cljs.core.match.macros :refer [match]])
-  (:require [cljs.core.match]
+  (:require-macros [cljs.core.async.macros :refer [go-loop]])
+  (:require [cljs.core.match :refer-macros [match]]
             [cljs.core.async :refer [<! chan]]
             [domina.css :refer [sel]]
             [textarea-to-code-editor.content.chrome :as c]

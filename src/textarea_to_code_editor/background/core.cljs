@@ -1,7 +1,6 @@
 (ns textarea-to-code-editor.background.core
-  (:require-macros [cljs.core.async.macros :refer [go-loop]]
-                   [cljs.core.match.macros :refer [match]])
-  (:require [cljs.core.match]
+  (:require-macros [cljs.core.async.macros :refer [go-loop]])
+  (:require [cljs.core.match :refer-macros [match]]
             [cljs.core.async :refer [<! chan]]
             [alandipert.storage-atom :refer [local-storage]]
             [textarea-to-code-editor.background.chrome :as c]

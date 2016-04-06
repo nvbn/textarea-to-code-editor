@@ -1,8 +1,7 @@
 (ns textarea-to-code-editor.content.handlers
   (:require-macros [cljs.core.async.macros :refer [go]]
-                   [cljs.core.match.macros :refer [match]]
                    [textarea-to-code-editor.macros :refer [defhandler]])
-  (:require [cljs.core.match]
+  (:require [cljs.core.match :refer-macros [match]]
             [cljs.core.async :refer [>!]]
             [textarea-to-code-editor.content.editor :as e]))
 

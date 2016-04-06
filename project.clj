@@ -3,21 +3,21 @@
             :url "https://github.com/nvbn/textarea-to-code-editor"
             :license {:name "Eclipse Public License"
                       :url "http://www.eclipse.org/legal/epl-v10.html"}
-            :dependencies [[org.clojure/clojure "1.6.0"]
-                           [org.clojure/clojurescript "0.0-2913"]
-                           [org.clojure/core.async "0.1.346.0-17112a-alpha"]
-                           [org.clojure/core.match "0.2.2"]
-                           [com.cognitect/transit-cljs "0.8.205"]
+            :dependencies [[org.clojure/clojure "1.8.0"]
+                           [org.clojure/clojurescript "1.7.228"]
+                           [org.clojure/core.match "0.3.0-alpha4"]
+                           [org.clojure/core.async "0.2.371"]
+                           [com.cognitect/transit-cljs "0.8.237"]
                            [com.cemerick/clojurescript.test "0.3.3"]
                            [domina "1.0.3"]
                            [clj-di "0.5.0"]
                            [selmer "0.8.0"]
                            [alandipert/storage-atom "1.2.4"]
                            [org.clojure/tools.macro "0.1.2"]]
-            :plugins [[lein-cljsbuild "1.0.3"]
+            :plugins [[lein-cljsbuild "1.1.3"]
                       [com.cemerick/clojurescript.test "0.3.3"]
                       [lein-bower "0.5.1"]]
-            :bower-dependencies [[ace-builds "~1.1.8"]]
+            :bower-dependencies [[ace-builds "~1.2.3"]]
             :bower {:directory "resources/components/"}
             :jvm-opts ["-Xss16m"]
             :content-scripts ["content/main.js"
